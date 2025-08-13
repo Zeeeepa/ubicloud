@@ -32,7 +32,8 @@ class Prog::StaticAppNexus < Prog::Base
     customer_project_ubid = static_app.project.ubid
     unique_name = static_app.ubid
     domain_prefix = static_app.domain_prefix
-
+    access_token = Github.app_client.create_app_installation_access_token(static_app.project.github_installations.first.installation_id)[:token]
+    repo_url = "https://x-access-token:#{access_token}@github.com/#{static_app.repository}.git"
     yaml_data = <<~YAML
 apiVersion: v1
 kind: Namespace
@@ -67,7 +68,7 @@ spec:
               apt-get update && \
               apt-get install -y git curl build-essential && \
               rm -rf /repo && \
-              git clone #{static_app.repository} /repo && \
+              git clone #{repo_url} /repo && \
               cd /repo && \
               git checkout #{static_app.branch} && \
               #{static_app.build_command}

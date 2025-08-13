@@ -41,6 +41,7 @@ class Clover
             typecast_params.nonempty_str!("src_dir"),
             typecast_params.nonempty_str!("output_dir")
           ).subject
+          page.incr_deploy
 
           flash["notice"] = "Page '#{page.name}' created successfully"
           r.redirect "#{@project.path}/page/#{@installation.ubid}"

@@ -9,15 +9,18 @@ class Clover
       response.headers["content-type"] = "application/json"
 
       data = JSON.parse(body)
-
-      puts data
-      return ""
-
       case r.headers["x-github-event"]
       when "installation"
         handle_installation(data)
       when "workflow_job"
         handle_workflow_job(data)
+      when "push"
+        repository = data["repository"]["full_name"]
+        installation = GithubInstallation[installation_id: data["installation"]["id"]]
+        app = installation.project.static_apps_dataset.where(repository:).first
+        app.incr_deploy
+        puts "===== deploying #{app.ubid}"
+        success("triggered")
       else
         error("Unhandled event")
       end
