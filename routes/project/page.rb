@@ -47,7 +47,8 @@ class Clover
             branch,
             typecast_params.nonempty_str!("build_command"),
             typecast_params.nonempty_str!("src_dir"),
-            typecast_params.nonempty_str!("output_dir")
+            typecast_params.nonempty_str!("output_dir"),
+            custom_domain: typecast_params.str("custom_domain")
           ).subject
           page.incr_deploy
 

@@ -5,8 +5,8 @@ require "open3"
 class Prog::StaticAppNexus < Prog::Base
   subject_is :static_app
 
-  def self.assemble(project_id, name, repository, branch, build_command, src_dir, output_dir)
-    app = StaticApp.create(project_id:, name:, repository:, branch:, build_command:, src_dir:, output_dir:)
+  def self.assemble(project_id, name, repository, branch, build_command, src_dir, output_dir, custom_domain: nil)
+    app = StaticApp.create(project_id:, name:, repository:, branch:, build_command:, src_dir:, output_dir:, custom_domain:)
 
     Strand.create_with_id(app.id, prog: "StaticAppNexus", label: "wait")
   end
@@ -17,16 +17,12 @@ class Prog::StaticAppNexus < Prog::Base
       hop_deploy
     end
 
-    when_add_custom_domain_set? do
-      register_deadline(:wait, 5 * 60)
-      hop_add_custom_domain
-    end
-
     nap 10
   end
 
   label def deploy
     do_deploy
+    add_custom_domain unless static_app.custom_domain.nil?
     hop_deploying
   end
 
@@ -35,13 +31,10 @@ class Prog::StaticAppNexus < Prog::Base
     nap 5
   end
 
-  label def add_custom_domain
-    decr_add_custom_domain
-
+  def add_custom_domain
     kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
     customer_project_ubid = static_app.project.ubid
     unique_name = static_app.ubid
-    custom_domain = "something"
 
     yaml_data = <<~YAML
 apiVersion: networking.k8s.io/v1
@@ -55,10 +48,10 @@ spec:
  ingressClassName: nginx
  tls:
  - hosts:
-   - #{custom_domain}
-   secretName: #{custom_domain}-ingress-tls
+   - #{static_app.custom_domain}
+   secretName: #{static_app.custom_domain}-ingress-tls
  rules:
- - host: #{custom_domain}
+ - host: #{static_app.custom_domain}
    http:
      paths:
      - path: /
@@ -85,8 +78,6 @@ spec:
         abort "kubectl failed!"
       end
     end
-
-    hop_wait
   end
 
   def do_deploy

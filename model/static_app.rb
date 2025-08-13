@@ -7,7 +7,7 @@ class StaticApp < Sequel::Model
   many_to_one :project
 
   plugin ResourceMethods
-  plugin SemaphoreMethods, :deploy, :add_custom_domain
+  plugin SemaphoreMethods, :deploy
 
   def domain_prefix
     "#{name}-#{project.ubid[-5..]}"
