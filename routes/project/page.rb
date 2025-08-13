@@ -56,7 +56,6 @@ class Clover
         end
 
         r.get "create" do
-          @repositories = Github.installation_client(@installation.installation_id).list_app_installation_repositories.repositories.map { [it.full_name, it.full_name] }
           view "page/create"
         end
       end

@@ -45,8 +45,13 @@
 <div class="grid gap-6">
   <%== part(
     "components/table_card",
-    headers: ["Name", "Repository", "Branch", "Website"],
-    rows: @project.static_apps.map {[[it.name, it.repository, it.branch, [it.domain, {link: it.domain}]], {}]},
+    headers: ["Name", "Repository", "Branch", "Status", "Website"],
+    rows: @project.static_apps_dataset.eager(:strand).all.map {[[
+      it.name,
+      it.repository,
+      it.branch,
+      ["state_label", {component: { state: it.strand.label, color: PAGES_STATE_LABEL_COLOR[it.strand.label] }}],
+      [it.domain, {link: it.domain}]], {}]},
     empty_state: {
       icon: "hero-computer-desktop",
       title: "No Pages",
