@@ -9,3 +9,18 @@ class StaticApp < Sequel::Model
   plugin ResourceMethods
   plugin SemaphoreMethods, :deploy
 end
+
+# Table: static_app
+# Columns:
+#  id            | uuid | PRIMARY KEY
+#  project_id    | uuid | NOT NULL
+#  repository    | text | NOT NULL
+#  branch        | text | NOT NULL
+#  build_command | text | NOT NULL
+#  output_dir    | text | NOT NULL
+#  name          | text | NOT NULL
+#  src_dir       | text | NOT NULL
+# Indexes:
+#  static_app_pkey | PRIMARY KEY btree (id)
+# Foreign key constraints:
+#  static_app_project_id_fkey | (project_id) REFERENCES project(id)

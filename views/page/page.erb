@@ -43,7 +43,7 @@
   <%== part(
     "components/table_card",
     headers: ["Repository", "Runner", "Workflow Job", "", ""],
-    rows: [],
+    rows: @project.static_apps.map {[it.id]},
     empty_state: {
       icon: "hero-computer-desktop",
       title: "No Pages",
