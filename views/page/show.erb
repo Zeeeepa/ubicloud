@@ -1,0 +1,116 @@
+<% @page_title = @static_app.name %>
+
+<div class="auto-refresh hidden" data-interval="10"></div>
+
+<%== part(
+  "components/page_header",
+  breadcrumbs: [
+    %w[Projects /project],
+    [@project_data[:name], @project_data[:path]],
+    ["Pages", "#{@project_data[:path]}/page"],
+    [@static_app.name, "#"]
+  ],
+  left_items: [part("components/state_label", state: @static_app.deployment_status, color: PAGES_STATE_LABEL_COLOR[@static_app.deployment_status], extra_class: "text-md")]
+) %>
+
+<% data = [
+      ["ID", @static_app.ubid],
+      ["Name", @static_app.name],
+      ["Repository", @static_app.repository],
+      ["Branch", @static_app.branch],
+      [
+        "Build command",
+        "<span class='bg-slate-100 text-rose-500 font-mono px-2 py-1 rounded'>#{h(@static_app.build_command)}</span>",
+        { escape: false }
+      ],
+      ["Output directory", @static_app.output_dir],
+      ["Branch", @static_app.branch],
+    ]
+    data << ["Custom domain", @static_app.custom_domain] if @static_app.custom_domain
+    %>
+
+<div class="grid gap-6">
+  <!-- Vm Detail Card -->
+  <%== part(
+    "components/kv_data_card",
+    data:
+  ) %>
+
+  <!-- Danger Zone -->
+  <div>
+    <div class="md:flex md:items-center md:justify-between pb-2 lg:pb-4">
+      <div class="min-w-0 flex-1">
+        <h3 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-2xl sm:tracking-tight">
+          Configuration
+        </h3>
+      </div>
+    </div>
+    <div class="overflow-hidden rounded-lg shadow ring-1 ring-black ring-opacity-5 bg-white divide-y divide-gray-200">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-center sm:justify-between">
+          <div>
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Upgrade to Premium</h3>
+            <div class="mt-2 text-sm text-gray-500">
+              <p>This action will upgrade your page from free tier to premium plan which has dedicated kubernetes cluster and load balancer. It's good for website with high number of visitors.</p>
+            </div>
+          </div>
+          <div id="app-deploy-<%= @static_app.id %>" class="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+            <div class="col-span-12 sm:col-span-2 flex justify-end items-end">
+              <%== part("components/form/submit_button", text: "Upgrade", extra_class: "deploy-btn") %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Restart Card -->
+      <div class="px-4 py-5 sm:p-6">
+        <form action="<%= "#{@project_data[:path]}/page/#{@installation.ubid}/app/#{@static_app.ubid}/deploy" %>" role="form" method="POST">
+        <%== csrf_tag("#{@project_data[:path]}/page/#{@installation.ubid}/app/#{@static_app.ubid}/deploy") %>
+          <div class="sm:flex sm:items-center sm:justify-between">
+            <div>
+              <h3 class="text-base font-semibold leading-6 text-gray-900">Deploy</h3>
+              <div class="mt-2 text-sm text-gray-500">
+                <p>This action will deploy the latest commit of that branch.</p>
+              </div>
+            </div>
+            <div id="app-deploy-<%= @static_app.id %>" class="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+              <div class="col-span-12 sm:col-span-2 flex justify-end items-end">
+                <%== part("components/form/submit_button", text: "Deploy", extra_class: "deploy-btn") %>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-center sm:justify-between">
+          <div>
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Delete page</h3>
+            <div class="mt-2 text-sm text-gray-500">
+              <p>This action will permanently delete this deployment. Deleted data cannot be recovered. Use it
+                carefully.</p>
+            </div>
+          </div>
+          <div id="app-delete-<%=@static_app.ubid%>" class="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+            <%== part("components/delete_button", confirmation: @static_app.name, redirect: "#{@project_data[:path]}/page/#{@installation.ubid}") %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="md:flex md:items-center md:justify-between pb-2 lg:pb-4">
+      <div class="min-w-0 flex-1">
+        <h3 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-2xl sm:tracking-tight">
+        Build logs
+        </h3>
+      </div>
+    </div>
+    <div class="overflow-hidden rounded-lg shadow ring-1 ring-black ring-opacity-5 bg-white divide-y divide-gray-200">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-center sm:justify-between overflow-scroll max-h-96 max-w-5xl whitespace-pre border p-3 bg-slate-100 text-rose-500 font-mono rounded">
+          <%= @static_app.build_logs %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

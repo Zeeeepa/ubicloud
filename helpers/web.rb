@@ -18,8 +18,8 @@ class Clover < Roda
   ).freeze
 
   PAGES_STATE_LABEL_COLOR = Hash.new("bg-slate-100 text-slate-800").merge!(
-    "wait" => "bg-green-100 text-green-800",
-    "deploy" => "bg-yellow-100 text-yellow-800"
+    "Ready" => "bg-green-100 text-green-800",
+    "Deploying" => "bg-yellow-100 text-yellow-800"
   ).freeze
 
   VM_STATE_LABEL_COLOR = Hash.new("bg-slate-100 text-slate-800").merge!(

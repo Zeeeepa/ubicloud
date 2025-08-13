@@ -7,7 +7,7 @@ class StaticApp < Sequel::Model
   many_to_one :project
 
   plugin ResourceMethods
-  plugin SemaphoreMethods, :deploy
+  plugin SemaphoreMethods, :deploy, :destroy
 
   def domain_prefix
     "#{name}-#{project.ubid[-5..]}"
@@ -17,24 +17,26 @@ class StaticApp < Sequel::Model
     "https://#{domain_prefix}.ubicloud.app"
   end
 
-  def deployment_status
+  def run_kubectl(cmd)
     kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
     cmd = [
       "kubectl",
       "--kubeconfig", kubeconfig_path,
       "-n", project.ubid,
-      "get", "deployment", ubid,
-      "-o", "json"
+      *cmd
     ]
 
     stdout_str, stderr_str, status = Open3.capture3(*cmd)
 
     unless status.success?
-      warn "kubectl error: #{stderr_str.strip}"
-      abort "Failed to fetch deployment status for #{ubid} in #{project.ubid}"
+      fail "kubectl error: #{stderr_str.strip}"
     end
 
-    data = JSON.parse(stdout_str)
+    stdout_str
+  end
+
+  def deployment_status
+    data = JSON.parse(run_kubectl(["get", "deployment", ubid, "-o", "json"]))
 
     updated = data.dig("status", "updatedReplicas").to_i
     replicas = data.dig("status", "replicas").to_i
@@ -43,27 +45,28 @@ class StaticApp < Sequel::Model
     if updated == replicas && replicas == available
       "Ready"
     else
-      "Updating"
+      "Deploying"
     end
+  rescue
+    "Creating"
   end
 
   def build_logs
-    kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
-    cmd = [
-      "kubectl",
-      "--kubeconfig", kubeconfig_path,
-      "-n", project.ubid,
-      "logs", "deployment/#{ubid}",
-      "-c", "build-site"
-    ]
+    pod_name = run_kubectl([
+      "get", "pods",
+      "--selector=app=#{ubid}",
+      "--sort-by=.metadata.creationTimestamp",
+      "-o", "jsonpath={.items[-1:].metadata.name}"
+    ])
+    run_kubectl(["logs", pod_name, "-c", "build-site", "--timestamps=true"])
+  rescue
+    "No build logs available"
+  end
 
-    stdout_str, stderr_str, status = Open3.capture3(*cmd)
-    unless status.success?
-      warn "kubectl error: #{stderr_str.strip}"
-      abort "Failed to fetch deployment status for #{ubid} in #{project.ubid}"
-    end
-
-    stdout_str
+  def delete_resources
+    run_kubectl(["delete", "deployment", ubid])
+    run_kubectl(["delete", "ingress", ubid])
+    run_kubectl(["delete", "ingress", "#{ubid}-custom-domain", "--ignore-not-found"])
   end
 end
 

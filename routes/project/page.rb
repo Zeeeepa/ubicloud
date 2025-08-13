@@ -29,7 +29,7 @@ class Clover
           view "page/page"
         end
 
-        r.post do
+        r.post true do
           no_authorization_needed
           handle_validation_failure("page/create")
 
@@ -58,6 +58,28 @@ class Clover
 
         r.get "create" do
           view "page/create"
+        end
+
+        r.on "app" do
+          r.on :ubid_uuid do |id|
+            next unless (@static_app = StaticApp[id:])
+
+            r.get true do
+              view "page/show"
+            end
+
+            r.post "deploy" do
+              @static_app.incr_deploy
+              flash["notice"] = "Page '#{@static_app.name}' deployment triggered successfully"
+              r.redirect "#{@project.path}/page/#{@installation.ubid}/app/#{@static_app.ubid}"
+            end
+
+            r.delete true do |id|
+              @static_app.incr_destroy
+              flash["notice"] = "Page '#{@static_app.name}' deletion triggered successfully"
+              204
+            end
+          end
         end
       end
     end

@@ -47,12 +47,12 @@
     "components/table_card",
     headers: ["Name", "Repository", "Branch", "Status", "Website"],
     rows: @project.static_apps_dataset.eager(:strand).all.map {[[
-      it.name,
+      [it.name, {link: "#{@project_data[:path]}/page/#{@installation.ubid}/app/#{it.ubid}"}],
       it.repository,
       it.branch,
-      ["state_label", {component: { state: it.strand.label, color: PAGES_STATE_LABEL_COLOR[it.strand.label] }}],
-      [it.domain, {link: it.domain}],
-      it.deployment_status], {}]},
+      ["state_label", {component: { state: it.deployment_status, color: PAGES_STATE_LABEL_COLOR[it.deployment_status] }}],
+      [it.domain, {link: it.domain}]
+    ], {}]},
     empty_state: {
       icon: "hero-computer-desktop",
       title: "No Pages",

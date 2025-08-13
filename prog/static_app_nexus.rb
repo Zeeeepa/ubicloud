@@ -11,6 +11,14 @@ class Prog::StaticAppNexus < Prog::Base
     Strand.create_with_id(app.id, prog: "StaticAppNexus", label: "wait")
   end
 
+  def before_run
+    when_destroy_set? do
+      unless ["destroy"].include? strand.label
+        hop_destroy
+      end
+    end
+  end
+
   label def wait
     when_deploy_set? do
       register_deadline(:wait, 5 * 60)
@@ -29,6 +37,15 @@ class Prog::StaticAppNexus < Prog::Base
   label def deploying
     hop_wait if static_app.deployment_status == "Ready"
     nap 5
+  end
+
+  label def destroy
+    decr_destroy
+
+    static_app.delete_resources
+    static_app.destroy
+
+    pop "app deleted"
   end
 
   def add_custom_domain
