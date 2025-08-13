@@ -132,13 +132,11 @@ spec:
           emptyDir: {}
       initContainers:
         - name: build-site
-          image: ubuntu:24.04
+          image: mohiklnt/ubuntu:24.04
           command:
             - sh
             - -c
             - |
-              apt-get update && \
-              apt-get install -y git curl build-essential && \
               rm -rf /repo && \
               git clone #{repo_url} /repo && \
               cd /repo && \
