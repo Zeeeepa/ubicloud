@@ -9,8 +9,12 @@ class StaticApp < Sequel::Model
   plugin ResourceMethods
   plugin SemaphoreMethods, :deploy
 
-  def url
-    "https://#{name}-#{project.ubid[0..5]}.ubicloud.app"
+  def domain_prefix
+    "#{name}-#{project.ubid[-5..]}"
+  end
+
+  def domain
+    "https://#{domain_prefix}.ubicloud.app"
   end
 end
 
