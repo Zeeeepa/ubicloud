@@ -51,7 +51,8 @@
       it.repository,
       it.branch,
       ["state_label", {component: { state: it.strand.label, color: PAGES_STATE_LABEL_COLOR[it.strand.label] }}],
-      [it.domain, {link: it.domain}]], {}]},
+      [it.domain, {link: it.domain}],
+      it.deployment_status], {}]},
     empty_state: {
       icon: "hero-computer-desktop",
       title: "No Pages",

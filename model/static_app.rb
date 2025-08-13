@@ -16,6 +16,36 @@ class StaticApp < Sequel::Model
   def domain
     "https://#{domain_prefix}.ubicloud.app"
   end
+
+  def deployment_status
+    kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
+    cmd = [
+      "kubectl",
+      "--kubeconfig", kubeconfig_path,
+      "-n", project.ubid,
+      "get", "deployment", ubid,
+      "-o", "json"
+    ]
+
+    stdout_str, stderr_str, status = Open3.capture3(*cmd)
+
+    unless status.success?
+      warn "kubectl error: #{stderr_str.strip}"
+      abort "Failed to fetch deployment status for #{ubid} in #{project.ubid}"
+    end
+
+    data = JSON.parse(stdout_str)
+
+    updated = data.dig("status", "updatedReplicas").to_i
+    replicas = data.dig("status", "replicas").to_i
+    available = data.dig("status", "availableReplicas").to_i
+
+    if updated == replicas && replicas == available
+      "Ready"
+    else
+      "Updating"
+    end
+  end
 end
 
 # Table: static_app

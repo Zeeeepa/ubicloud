@@ -27,7 +27,12 @@ class Prog::StaticAppNexus < Prog::Base
 
   label def deploy
     do_deploy
-    hop_wait
+    hop_deploying
+  end
+
+  label def deploying
+    hop_wait if static_app.deployment_status == "Ready"
+    nap 5
   end
 
   label def add_custom_domain
