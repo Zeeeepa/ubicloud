@@ -53,7 +53,7 @@ class Clover
           page.incr_deploy
 
           flash["notice"] = "Page '#{page.name}' created successfully"
-          r.redirect "#{@project.path}/page/#{@installation.ubid}"
+          r.redirect "#{@project.path}/page/#{@installation.ubid}/app/#{page.ubid}"
         end
 
         r.get "create" do

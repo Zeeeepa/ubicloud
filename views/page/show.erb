@@ -25,8 +25,9 @@
       ],
       ["Output directory", @static_app.output_dir],
       ["Branch", @static_app.branch],
+      ["Website", @static_app.domain.sub("https://", ""), { link: @static_app.domain }],
     ]
-    data << ["Custom domain", @static_app.custom_domain] if @static_app.custom_domain
+    data << ["Custom domain", @static_app.custom_domain, { link: "https://#{@static_app.custom_domain}" }] if @static_app.custom_domain
     %>
 
 <div class="grid gap-6">
