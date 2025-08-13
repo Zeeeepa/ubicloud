@@ -9,6 +9,10 @@ class Clover
       response.headers["content-type"] = "application/json"
 
       data = JSON.parse(body)
+
+      puts data
+      return ""
+
       case r.headers["x-github-event"]
       when "installation"
         handle_installation(data)

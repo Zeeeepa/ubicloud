@@ -54,6 +54,13 @@
               is_active: request.path.start_with?("#{@project_data[:path]}/kubernetes-cluster"),
               icon: "kubernetes"
             ) %>
+            <%== part(
+              "layouts/sidebar/item",
+              name: "Pages",
+              url: "#{@project_data[:path]}/page",
+              is_active: request.path.start_with?("#{@project_data[:path]}/page"),
+              icon: "hero-computer-desktop"
+            ) %>
           <% else %>
             <%== part(
               "layouts/sidebar/item",

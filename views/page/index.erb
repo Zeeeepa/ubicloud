@@ -1,0 +1,11 @@
+<% @page_title = "Pages" %>
+
+
+<%== part(
+  "components/empty_state",
+  icon: "github",
+  title: "No Connected Accounts",
+  description: "Get started by installing our GitHub app to your user or organization account.",
+  button_link: "#{@project_data[:path]}/page/create",
+  button_title: "Connect New Account"
+) %>

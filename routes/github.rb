@@ -11,14 +11,14 @@ class Clover
 
       if (installation = GithubInstallation[installation_id: installation_id])
         @project = installation.project
-        authorize("Project:github", installation.project.id)
-        flash["notice"] = "GitHub runner integration is already enabled for #{installation.project.name} project."
-        Clog.emit("GitHub installation already exists") { {installation_failed: {id: installation_id, account_ubid: current_account.ubid}} }
-        r.redirect "#{installation.project.path}/github/#{installation.ubid}/runner"
+        # authorize("Project:github", installation.project.id)
+        flash["notice"] = "Ubicloud Pages integration is already enabled for #{installation.project.name} project."
+        # Clog.emit("GitHub installation already exists") { {installation_failed: {id: installation_id, account_ubid: current_account.ubid}} }
+        r.redirect "#{installation.project.path}/page"
       end
 
       unless (@project = project = Project[session.delete("github_installation_project_id")])
-        flash["error"] = "You should initiate the GitHub App installation request from the project's GitHub runner integration page."
+        flash["error"] = "You should initiate the GitHub App installation request from the project's Ubicloud Pages integration page."
         Clog.emit("GitHub callback failed due to lack of project in the session") { {installation_failed: {id: installation_id, account_ubid: current_account.ubid}} }
         r.redirect "/project"
       end
@@ -34,13 +34,13 @@ class Clover
       unless (access_token = code_response[:access_token])
         flash["error"] = "GitHub App installation failed. For any questions or assistance, reach out to our team at support@ubicloud.com"
         Clog.emit("GitHub callback failed due to lack of permission") { {installation_failed: {id: installation_id, account_ubid: current_account.ubid}} }
-        r.redirect "#{project.path}/github"
+        r.redirect "#{project.path}/page"
       end
 
       unless (installation_response = Octokit::Client.new(access_token: access_token).get("/user/installations")[:installations].find { it[:id].to_s == installation_id })
         flash["error"] = "GitHub App installation failed. For any questions or assistance, reach out to our team at support@ubicloud.com"
         Clog.emit("GitHub callback failed due to lack of installation") { {installation_failed: {id: installation_id, account_ubid: current_account.ubid}} }
-        r.redirect "#{project.path}/github"
+        r.redirect "#{project.path}/page"
       end
 
       unless project.active?
@@ -56,8 +56,8 @@ class Clover
         project_id: project.id
       )
 
-      flash["notice"] = "GitHub runner integration is enabled for #{project.name} project."
-      r.redirect "#{project.path}/github/#{installation.ubid}/runner"
+      flash["notice"] = "Ubicloud page integration is enabled for #{project.name} project."
+      r.redirect "#{project.path}/page"
     end
   end
 end
