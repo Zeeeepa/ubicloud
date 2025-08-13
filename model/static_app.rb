@@ -46,6 +46,25 @@ class StaticApp < Sequel::Model
       "Updating"
     end
   end
+
+  def build_logs
+    kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
+    cmd = [
+      "kubectl",
+      "--kubeconfig", kubeconfig_path,
+      "-n", project.ubid,
+      "logs", "deployment/#{ubid}",
+      "-c", "build-site"
+    ]
+
+    stdout_str, stderr_str, status = Open3.capture3(*cmd)
+    unless status.success?
+      warn "kubectl error: #{stderr_str.strip}"
+      abort "Failed to fetch deployment status for #{ubid} in #{project.ubid}"
+    end
+
+    stdout_str
+  end
 end
 
 # Table: static_app
