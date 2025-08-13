@@ -36,6 +36,7 @@ class Prog::StaticAppNexus < Prog::Base
     kubeconfig_path = "/home/hadi/static-app/static-app-prod-kubeconfig.yaml"
     customer_project_ubid = static_app.project.ubid
     unique_name = static_app.ubid
+    domain_prefix = unique_name
 
     yaml_data = <<~YAML
 apiVersion: v1
@@ -110,10 +111,10 @@ spec:
  ingressClassName: nginx
  tls:
  - hosts:
-   - #{unique_name}.ubicloud.app
+   - #{domain_prefix}.ubicloud.app
    secretName: #{unique_name}-ingress-tls
  rules:
- - host: #{unique_name}.ubicloud.app
+ - host: #{domain_prefix}.ubicloud.app
    http:
      paths:
      - path: /
