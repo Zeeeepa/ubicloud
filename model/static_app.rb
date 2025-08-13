@@ -29,7 +29,8 @@ class StaticApp < Sequel::Model
     stdout_str, stderr_str, status = Open3.capture3(*cmd)
 
     unless status.success?
-      fail "kubectl error: #{stderr_str.strip}"
+      Clog.emit("kubectl error: #{stderr_str.strip}")
+      raise CloverError.new(500, "InternalServerError", "Failed to run kubectl command: #{stderr_str.strip}")
     end
 
     stdout_str

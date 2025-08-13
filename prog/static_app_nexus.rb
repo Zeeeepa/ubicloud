@@ -30,7 +30,7 @@ class Prog::StaticAppNexus < Prog::Base
 
   label def deploy
     do_deploy
-    add_custom_domain unless static_app.custom_domain.nil?
+    add_custom_domain if static_app.custom_domain && !static_app.custom_domain.empty?
     hop_deploying
   end
 
