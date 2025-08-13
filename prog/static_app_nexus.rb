@@ -28,7 +28,7 @@ class Prog::StaticAppNexus < Prog::Base
   def do_deploy
     decr_deploy
 
-    kubeconfig_path = "/home/hadi/static-app/static-app-prod-kubeconfig.yaml"
+    kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
     customer_project_ubid = static_app.project.ubid
     unique_name = static_app.ubid
     domain_prefix = static_app.domain_prefix
