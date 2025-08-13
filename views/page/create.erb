@@ -1,5 +1,6 @@
 <% @page_title = "Create Page" %>
 
+<% @repositories = Github.installation_client(@installation.installation_id).list_app_installation_repositories.repositories.map { [it.full_name, it.full_name] } %>
 <%== part("components/page_header",
   breadcrumbs: [
     %w[Projects /project],

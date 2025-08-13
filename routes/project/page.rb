@@ -31,12 +31,20 @@ class Clover
 
         r.post do
           no_authorization_needed
+          handle_validation_failure("page/create")
+
+          repository = typecast_params.nonempty_str!("repository")
+          branch = typecast_params.nonempty_str!("branch")
+
+          if @project.static_apps_dataset.first(repository:, branch:)
+            fail CloverError.new(400, "InvalidRequest", "You can't create a page with the same repository and branch again")
+          end
 
           page = Prog::StaticAppNexus.assemble(
             @project.id,
             typecast_params.nonempty_str!("name"),
-            typecast_params.nonempty_str!("repository"),
-            typecast_params.nonempty_str!("branch"),
+            repository,
+            branch,
             typecast_params.nonempty_str!("build_command"),
             typecast_params.nonempty_str!("src_dir"),
             typecast_params.nonempty_str!("output_dir")
