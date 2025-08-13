@@ -7,7 +7,7 @@ class StaticApp < Sequel::Model
   many_to_one :project
 
   plugin ResourceMethods
-  plugin SemaphoreMethods, :deploy
+  plugin SemaphoreMethods, :deploy, :add_custom_domain
 
   def domain_prefix
     "#{name}-#{project.ubid[-5..]}"
@@ -28,6 +28,7 @@ end
 #  output_dir    | text | NOT NULL
 #  name          | text | NOT NULL
 #  src_dir       | text | NOT NULL
+#  custom_domain | text |
 # Indexes:
 #  static_app_pkey | PRIMARY KEY btree (id)
 # Foreign key constraints:

@@ -17,11 +17,70 @@ class Prog::StaticAppNexus < Prog::Base
       hop_deploy
     end
 
+    when_add_custom_domain_set? do
+      register_deadline(:wait, 5 * 60)
+      hop_add_custom_domain
+    end
+
     nap 10
   end
 
   label def deploy
     do_deploy
+    hop_wait
+  end
+
+  label def add_custom_domain
+    decr_add_custom_domain
+
+    kubeconfig_path = "var/static-app-prod-kubeconfig.yaml"
+    customer_project_ubid = static_app.project.ubid
+    unique_name = static_app.ubid
+    custom_domain = "something"
+
+    yaml_data = <<~YAML
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: #{unique_name}-custom-domain
+ namespace: #{customer_project_ubid}
+ annotations:
+   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+ ingressClassName: nginx
+ tls:
+ - hosts:
+   - #{custom_domain}
+   secretName: #{custom_domain}-ingress-tls
+ rules:
+ - host: #{custom_domain}
+   http:
+     paths:
+     - path: /
+       pathType: Prefix
+       backend:
+         service:
+           name: #{unique_name}
+           port:
+             number: 80
+    YAML
+
+    Open3.popen3(
+      "kubectl",
+      "--kubeconfig", kubeconfig_path,
+      "apply", "-f", "-"
+    ) do |stdin, stdout, stderr, wait_thr|
+      stdin.write(yaml_data)
+      stdin.close
+
+      puts "STDOUT:\n#{stdout.read}"
+      puts "STDERR:\n#{stderr.read}"
+
+      unless wait_thr.value.success?
+        abort "kubectl failed!"
+      end
+    end
+
     hop_wait
   end
 
