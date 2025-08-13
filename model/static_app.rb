@@ -8,6 +8,10 @@ class StaticApp < Sequel::Model
 
   plugin ResourceMethods
   plugin SemaphoreMethods, :deploy
+
+  def url
+    "https://#{name}-#{project.ubid[0..5]}.ubicloud.app"
+  end
 end
 
 # Table: static_app

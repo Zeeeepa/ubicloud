@@ -1,0 +1,96 @@
+<% @page_title = "Create Page" %>
+
+<%== part("components/page_header",
+  breadcrumbs: [
+    %w[Projects /project],
+    [@project_data[:name], @project_data[:path]],
+    ["Pages", "#{@project_data[:path]}/page"],
+    %w[Create #]
+  ]
+)
+%>
+
+<div class="grid gap-6">
+  <form action="<%= "#{@project_data[:path]}/page/#{@installation.ubid}" %>" method="POST">
+  <%== csrf_tag("#{@project_data[:path]}/page/#{@installation.ubid}") %>
+    <!-- Create Card -->
+    <div class="overflow-hidden rounded-lg shadow ring-1 ring-black ring-opacity-5 bg-white divide-y divide-gray-200">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div class="sm:col-span-3">
+            <%== part(
+              "components/form/text",
+              name: "name",
+              label: "Name",
+              attributes: {
+                required: true,
+                placeholder: "Enter name"
+              }
+            ) %>
+          </div>
+          <div class="sm:col-span-3">
+            <%== part(
+              "components/form/select",
+              name: "repository",
+              label: "Repository",
+              placeholder: "Select a repository",
+              options: @repositories
+            ) %>
+          </div>
+          <div class="sm:col-span-3">
+            <%== part(
+              "components/form/text",
+              name: "branch",
+              label: "Branch",
+              value: "main",
+              attributes: {
+                required: true
+              }
+            ) %>
+          </div>
+          <div class="sm:col-span-3">
+            <%== part(
+              "components/form/text",
+              name: "build_command",
+              label: "Build Command",
+              attributes: {
+                required: true,
+                placeholder: "Enter build command (e.g., npm run build)"
+              }
+            ) %>
+          </div>
+          <div class="sm:col-span-3">
+            <%== part(
+              "components/form/text",
+              name: "src_dir",
+              label: "Source Directory",
+              value: "/",
+              attributes: {
+                required: true
+              }
+            ) %>
+          </div>
+          <div class="sm:col-span-3">
+            <%== part(
+              "components/form/text",
+              name: "output_dir",
+              label: "Output Directory",
+              value: "build",
+              attributes: {
+                required: true
+              }
+            ) %>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-end gap-x-6">
+          <a href="<%= "#{@project_data[:path]}/page" %>" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
+          <%== part("components/form/submit_button", text: "Create") %>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

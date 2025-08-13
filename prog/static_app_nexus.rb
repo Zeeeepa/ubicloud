@@ -1,17 +1,12 @@
 # frozen_string_literal: true
+
 require "open3"
 
 class Prog::StaticAppNexus < Prog::Base
   subject_is :static_app
 
-  def self.assemble(project_id, repo, branch, build_command, output_dir)
-    app = StaticApp.create(
-      project_id: project_id,
-      repository: repo,
-      branch: branch,
-      build_command: build_command,
-      output_dir: output_dir
-    )
+  def self.assemble(project_id, name, repository, branch, build_command, src_dir, output_dir)
+    app = StaticApp.create(project_id:, name:, repository:, branch:, build_command:, src_dir:, output_dir:)
 
     Strand.create_with_id(app.id, prog: "StaticAppNexus", label: "wait")
   end
@@ -142,5 +137,4 @@ spec:
       end
     end
   end
-
 end

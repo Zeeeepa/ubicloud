@@ -42,8 +42,8 @@
 <div class="grid gap-6">
   <%== part(
     "components/table_card",
-    headers: ["Repository", "Runner", "Workflow Job", "", ""],
-    rows: @project.static_apps.map {[it.id]},
+    headers: ["Name", "Repository", "Branch", "Website"],
+    rows: [@project.static_apps.map {[it.name, it.repository, it.branch, [it.url, {link: it.url}]]}, {}],
     empty_state: {
       icon: "hero-computer-desktop",
       title: "No Pages",
